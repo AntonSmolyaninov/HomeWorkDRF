@@ -1,3 +1,4 @@
+from django.db import models
 from rest_framework import serializers
 from .models import User, Payment
 from materials.serializers import CourseSerializer, LessonSerializer
