@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "users",
     "materials",
+    "django_filters",
 ]
 
 MIDDLEWARE = [
@@ -38,6 +39,17 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+        'rest_framework.filters.OrderingFilter',
+        'rest_framework.filters.SearchFilter',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.AllowAny',
+    ]
+}
 
 ROOT_URLCONF = "config.urls"
 
