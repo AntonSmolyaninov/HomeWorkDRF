@@ -1,16 +1,15 @@
-from rest_framework import viewsets, permissions, filters, generics, status
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework.generics import (
-    CreateAPIView,
-    ListAPIView,
-    UpdateAPIView,
-    RetrieveUpdateDestroyAPIView,
-)
+from rest_framework import filters, generics, permissions, status, viewsets
+from rest_framework.generics import (CreateAPIView, ListAPIView,
+                                     RetrieveUpdateDestroyAPIView,
+                                     UpdateAPIView)
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
-from users.models import User, Payment
-from users.serializers import PaymentSerializer, UserPaymentSerializer, UserSerializer
+from users.models import Payment, User
+from users.serializers import (PaymentSerializer, UserPaymentSerializer,
+                               UserSerializer)
+
 from .filters import PaymentFilter
 
 
