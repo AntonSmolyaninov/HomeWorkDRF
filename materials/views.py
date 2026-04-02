@@ -1,5 +1,11 @@
 from rest_framework.viewsets import ModelViewSet
-from rest_framework.generics import ListAPIView, CreateAPIView, RetrieveAPIView, UpdateAPIView, DestroyAPIView
+from rest_framework.generics import (
+    ListAPIView,
+    CreateAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+    DestroyAPIView,
+)
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 
 from materials.models import Course, Lesson
@@ -11,6 +17,7 @@ class CourseViewSet(ModelViewSet):
     ViewSet для управления курсами.
     Выводит количество уроков и все уроки курса.
     """
+
     queryset = Course.objects.all()
     serializer_class = CourseSerializer  # Используем CourseSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -24,6 +31,7 @@ class CourseViewSet(ModelViewSet):
 
 class LessonCreateAPIView(CreateAPIView):
     """Создание урока"""
+
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -34,6 +42,7 @@ class LessonCreateAPIView(CreateAPIView):
 
 class LessonListAPIView(ListAPIView):
     """Список уроков"""
+
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -41,6 +50,7 @@ class LessonListAPIView(ListAPIView):
 
 class LessonRetrieveAPIView(RetrieveAPIView):
     """Детальная информация об уроке"""
+
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -48,6 +58,7 @@ class LessonRetrieveAPIView(RetrieveAPIView):
 
 class LessonUpdateAPIView(UpdateAPIView):
     """Обновление урока"""
+
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
@@ -58,6 +69,7 @@ class LessonUpdateAPIView(UpdateAPIView):
 
 class LessonDestroyAPIView(DestroyAPIView):
     """Удаление урока"""
+
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]

@@ -15,9 +15,7 @@ class Course(models.Model):
     """
 
     title = models.CharField(
-        max_length=100,
-        verbose_name="Название",
-        help_text="Укажите название курса"
+        max_length=100, verbose_name="Название", help_text="Укажите название курса"
     )
     """
     Название курса.
@@ -47,10 +45,7 @@ class Course(models.Model):
     """
 
     description = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Описание",
-        help_text="Введите описание"
+        blank=True, null=True, verbose_name="Описание", help_text="Введите описание"
     )
     """
     Описание курса.
@@ -99,9 +94,7 @@ class Lesson(models.Model):
     """
 
     title = models.CharField(
-        max_length=100,
-        verbose_name="Название",
-        help_text="Укажите название урока"
+        max_length=100, verbose_name="Название", help_text="Укажите название урока"
     )
     """
     Название урока.
@@ -131,10 +124,7 @@ class Lesson(models.Model):
     """
 
     description = models.TextField(
-        blank=True,
-        null=True,
-        verbose_name="Описание",
-        help_text="Введите описание"
+        blank=True, null=True, verbose_name="Описание", help_text="Введите описание"
     )
     """
     Описание урока.
@@ -146,11 +136,7 @@ class Lesson(models.Model):
         help_text: Подсказка при заполнении
     """
 
-    video_url = models.URLField(
-        blank=True,
-        null=True,
-        verbose_name="Ссылка на видео"
-    )
+    video_url = models.URLField(blank=True, null=True, verbose_name="Ссылка на видео")
     """
     Ссылка на видео-материал урока.
     Args:
@@ -160,10 +146,7 @@ class Lesson(models.Model):
     """
 
     course = models.ForeignKey(
-        Course,
-        on_delete=models.CASCADE,
-        related_name="lessons",
-        verbose_name="Курс"
+        Course, on_delete=models.CASCADE, related_name="lessons", verbose_name="Курс"
     )
     """
     Связь с моделью Course (многие к одному).
