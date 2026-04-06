@@ -1,5 +1,7 @@
 from django.db import models
 
+from materials.validators import validate_forbidden_domains
+
 
 class Course(models.Model):
     """
@@ -73,6 +75,7 @@ class Lesson(models.Model):
         blank=True, null=True, verbose_name="Описание", help_text="Введите описание"
     )
     video_url = models.URLField(blank=True, null=True, verbose_name="Ссылка на видео")
+    validators=[validate_forbidden_domains]
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="lessons", verbose_name="Курс"
     )

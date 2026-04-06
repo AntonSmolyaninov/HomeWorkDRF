@@ -2,12 +2,19 @@ from rest_framework import serializers
 from rest_framework.serializers import ModelSerializer
 
 from materials.models import Course, Lesson
+from materials.validators import validate_forbidden_domains
 
 
 class LessonSerializer(ModelSerializer):
     """
-    Сериализатор для модели Lesson.
+    Сериализатор для модели Lesson с валидацией YouTube ссылок.
     """
+
+    video_url = serializers.URLField(
+        required=False,
+        allow_blank=True,
+        validators=[validate_forbidden_domains]
+    )
 
     class Meta:
         model = Lesson
