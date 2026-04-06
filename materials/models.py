@@ -3,6 +3,7 @@ from django.db import models
 from materials.validators import validate_forbidden_domains
 
 
+
 class Course(models.Model):
     """
     Модель курса, представляющая образовательную программу.
@@ -97,3 +98,34 @@ class Lesson(models.Model):
         Строковое представление объекта урока.
         """
         return f"{self.title} (Курс: {self.course.title})"
+
+
+class Subscription(models.Model):
+    """
+    Модель подписки пользователя на обновления курса.
+    """
+    user = models.ForeignKey(
+        'users.User',
+        on_delete=models.CASCADE,
+        related_name='subscriptions',
+        verbose_name='Пользователь'
+    )
+    course = models.ForeignKey(
+        'materials.Course',
+        on_delete=models.CASCADE,
+        related_name='subscribers',
+        verbose_name='Курс'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Дата подписки'
+    )
+
+    class Meta:
+        verbose_name = 'Подписка'
+        verbose_name_plural = 'Подписки'
+        unique_together = ['user', 'course']  # Запрещаем дублирование подписок
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.user.email} подписан на {self.course.title}"
