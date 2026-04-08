@@ -77,7 +77,7 @@ class Payment(models.Model):
     payment_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата оплаты")
 
     course = models.ForeignKey(
-        'materials.Course',
+        "materials.Course",
         on_delete=models.CASCADE,
         null=True,
         blank=True,
@@ -86,7 +86,7 @@ class Payment(models.Model):
     )
 
     lesson = models.ForeignKey(
-        'materials.Lesson',
+        "materials.Lesson",
         on_delete=models.CASCADE,
         null=True,
         blank=True,

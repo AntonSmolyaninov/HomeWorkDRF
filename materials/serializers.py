@@ -11,9 +11,7 @@ class LessonSerializer(ModelSerializer):
     """
 
     video_url = serializers.URLField(
-        required=False,
-        allow_blank=True,
-        validators=[validate_forbidden_domains]
+        required=False, allow_blank=True, validators=[validate_forbidden_domains]
     )
 
     class Meta:
@@ -45,10 +43,11 @@ class SubscriptionSerializer(serializers.ModelSerializer):
     """
     Сериализатор для модели подписки.
     """
-    course_title = serializers.CharField(source='course.title', read_only=True)
-    user_email = serializers.CharField(source='user.email', read_only=True)
+
+    course_title = serializers.CharField(source="course.title", read_only=True)
+    user_email = serializers.CharField(source="user.email", read_only=True)
 
     class Meta:
         model = Subscription
-        fields = ['id', 'user', 'user_email', 'course', 'course_title', 'created_at']
-        read_only_fields = ['created_at']
+        fields = ["id", "user", "user_email", "course", "course_title", "created_at"]
+        read_only_fields = ["created_at"]

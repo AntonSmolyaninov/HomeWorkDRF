@@ -3,7 +3,6 @@ from django.db import models
 from materials.validators import validate_forbidden_domains
 
 
-
 class Course(models.Model):
     """
     Модель курса, представляющая образовательную программу.
@@ -76,7 +75,7 @@ class Lesson(models.Model):
         blank=True, null=True, verbose_name="Описание", help_text="Введите описание"
     )
     video_url = models.URLField(blank=True, null=True, verbose_name="Ссылка на видео")
-    validators=[validate_forbidden_domains]
+    validators = [validate_forbidden_domains]
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="lessons", verbose_name="Курс"
     )
@@ -104,28 +103,26 @@ class Subscription(models.Model):
     """
     Модель подписки пользователя на обновления курса.
     """
+
     user = models.ForeignKey(
-        'users.User',
+        "users.User",
         on_delete=models.CASCADE,
-        related_name='subscriptions',
-        verbose_name='Пользователь'
+        related_name="subscriptions",
+        verbose_name="Пользователь",
     )
     course = models.ForeignKey(
-        'materials.Course',
+        "materials.Course",
         on_delete=models.CASCADE,
-        related_name='subscribers',
-        verbose_name='Курс'
+        related_name="subscribers",
+        verbose_name="Курс",
     )
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name='Дата подписки'
-    )
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Дата подписки")
 
     class Meta:
-        verbose_name = 'Подписка'
-        verbose_name_plural = 'Подписки'
-        unique_together = ['user', 'course']  # Запрещаем дублирование подписок
-        ordering = ['-created_at']
+        verbose_name = "Подписка"
+        verbose_name_plural = "Подписки"
+        unique_together = ["user", "course"]  # Запрещаем дублирование подписок
+        ordering = ["-created_at"]
 
     def __str__(self):
         return f"{self.user.email} подписан на {self.course.title}"
