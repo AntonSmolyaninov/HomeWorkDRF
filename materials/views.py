@@ -1,11 +1,17 @@
+from rest_framework import status
 from rest_framework.generics import (CreateAPIView, DestroyAPIView,
                                      ListAPIView, RetrieveAPIView,
-                                     UpdateAPIView)
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+                                     UpdateAPIView, get_object_or_404)
+from rest_framework.permissions import (IsAuthenticated,
+                                        IsAuthenticatedOrReadOnly)
+from rest_framework.response import Response
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from materials.models import Course, Lesson
-from materials.serializers import CourseSerializer, LessonSerializer
+from materials.models import Course, Lesson, Subscription
+from materials.paginators import CoursePagination, LessonPagination
+from materials.serializers import (CourseSerializer, LessonSerializer,
+                                   SubscriptionSerializer)
 from users.permissions import IsModer, IsOwner
 
 
@@ -18,6 +24,7 @@ class CourseViewSet(ModelViewSet):
     queryset = Course.objects.all()
     serializer_class = CourseSerializer  # Используем CourseSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = CoursePagination
 
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
@@ -52,6 +59,7 @@ class LessonListAPIView(ListAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
+    pagination_class = LessonPagination
 
 
 class LessonRetrieveAPIView(RetrieveAPIView):
@@ -79,5 +87,71 @@ class LessonDestroyAPIView(DestroyAPIView):
     queryset = Lesson.objects.all()
     serializer_class = LessonSerializer
     permission_classes = [IsAuthenticated, IsOwner | ~IsModer]
+
     def perform_destroy(self, instance):
         instance.delete()
+
+
+class SubscriptionAPIView(APIView):
+    """
+    APIView для управления подпиской пользователя на курс.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        # Получаем пользователя из запроса
+        user = request.user
+
+        # Получаем id курса из данных запроса
+        course_id = request.data.get("course_id")
+
+        if not course_id:
+            return Response(
+                {"error": "Необходимо указать course_id"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        # Получаем объект курса
+        course_item = get_object_or_404(Course, id=course_id)
+
+        # Получаем объекты подписок по текущему пользователю и курсу
+        subs_item = Subscription.objects.filter(user=user, course=course_item)
+
+        # Если подписка у пользователя на этот курс есть - удаляем ее
+        if subs_item.exists():
+            subs_item.delete()
+            message = "подписка удалена"
+            status_code = status.HTTP_200_OK
+        # Если подписки у пользователя на этот курс нет - создаем ее
+        else:
+            Subscription.objects.create(user=user, course=course_item)
+            message = "подписка добавлена"
+            status_code = status.HTTP_201_CREATED
+
+        # Возвращаем ответ в API
+        return Response({"message": message}, status=status_code)
+
+    def get(self, request, *args, **kwargs):
+        """
+        Получение списка подписок текущего пользователя.
+        """
+        subscriptions = Subscription.objects.filter(user=request.user)
+        serializer = SubscriptionSerializer(subscriptions, many=True)
+        return Response(serializer.data)
+
+
+class UserSubscriptionsView(APIView):
+    """
+    Получение всех курсов, на которые подписан пользователь.
+    """
+
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        subscriptions = Subscription.objects.filter(user=request.user).select_related(
+            "course"
+        )
+        courses = [sub.course for sub in subscriptions]
+        serializer = CourseSerializer(courses, many=True, context={"request": request})
+        return Response(serializer.data)
