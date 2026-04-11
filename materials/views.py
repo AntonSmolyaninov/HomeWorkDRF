@@ -1,17 +1,28 @@
-from rest_framework import status
-from rest_framework.generics import (CreateAPIView, DestroyAPIView,
-                                     ListAPIView, RetrieveAPIView,
-                                     UpdateAPIView, get_object_or_404)
-from rest_framework.permissions import (IsAuthenticated,
-                                        IsAuthenticatedOrReadOnly)
+import stripe
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework import status, settings
+from rest_framework.generics import (
+    CreateAPIView,
+    DestroyAPIView,
+    ListAPIView,
+    RetrieveAPIView,
+    UpdateAPIView,
+    get_object_or_404,
+)
+from rest_framework.permissions import IsAuthenticated, IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
 from materials.models import Course, Lesson, Subscription
 from materials.paginators import CoursePagination, LessonPagination
-from materials.serializers import (CourseSerializer, LessonSerializer,
-                                   SubscriptionSerializer)
+from materials.serializers import (
+    CourseSerializer,
+    LessonSerializer,
+    SubscriptionSerializer,
+)
+from services.stripe_service import create_checkout_session
 from users.permissions import IsModer, IsOwner
 
 
@@ -155,3 +166,12 @@ class UserSubscriptionsView(APIView):
         courses = [sub.course for sub in subscriptions]
         serializer = CourseSerializer(courses, many=True, context={"request": request})
         return Response(serializer.data)
+
+
+class CreateCheckoutSessionView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, course_id):
+        course = Course.objects.get(id=course_id)
+        checkout_session = create_checkout_session(course, request.user, request)
+        return Response({"checkout_url": checkout_session.url})
