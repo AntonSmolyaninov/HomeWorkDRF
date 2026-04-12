@@ -4,18 +4,7 @@ from materials.validators import validate_forbidden_domains
 
 
 class Course(models.Model):
-    """
-    Модель курса, представляющая образовательную программу.
-
-    Эта модель хранит информацию о курсе, включая его название,
-    визуальное представление (превью) и описание содержания.
-
-    Attributes:
-        title (CharField): Название курса (обязательное поле)
-        preview (ImageField): Превью-изображение курса (опционально)
-        description (TextField): Описание курса (опционально)
-    """
-
+    """Модель курса"""
     title = models.CharField(
         max_length=100, verbose_name="Название", help_text="Укажите название курса"
     )
@@ -37,6 +26,20 @@ class Course(models.Model):
         verbose_name="Владелец",
         help_text="укажите владельца",
     )
+    price = models.DecimalField(
+        max_digits=10,
+        decimal_places=2,
+        default=0.00,
+        verbose_name="Цена",
+        help_text="Укажите цену курса",
+    )
+    stripe_product_id = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name="Stripe Product ID",
+        help_text="ID продукта в Stripe",
+    )
 
     class Meta:
         verbose_name = "Курс"
@@ -47,20 +50,7 @@ class Course(models.Model):
 
 
 class Lesson(models.Model):
-    """
-    Модель урока, принадлежащего определенному курсу.
-
-    Эта модель хранит информацию об отдельном уроке в рамках курса,
-    включая его название, описание, превью и ссылку на видео.
-
-    Attributes:
-        title (CharField): Название урока (обязательное поле)
-        preview (ImageField): Превью-изображение урока (опционально)
-        description (TextField): Описание урока (опционально)
-        video_url (URLField): Ссылка на видео-материал (опционально)
-        course (ForeignKey): Ссылка на родительский курс
-    """
-
+    """Модель урока"""
     title = models.CharField(
         max_length=100, verbose_name="Название", help_text="Укажите название урока"
     )
@@ -75,7 +65,6 @@ class Lesson(models.Model):
         blank=True, null=True, verbose_name="Описание", help_text="Введите описание"
     )
     video_url = models.URLField(blank=True, null=True, verbose_name="Ссылка на видео")
-    validators = [validate_forbidden_domains]
     course = models.ForeignKey(
         Course, on_delete=models.CASCADE, related_name="lessons", verbose_name="Курс"
     )
@@ -93,17 +82,11 @@ class Lesson(models.Model):
         verbose_name_plural = "Уроки"
 
     def __str__(self):
-        """
-        Строковое представление объекта урока.
-        """
         return f"{self.title} (Курс: {self.course.title})"
 
 
 class Subscription(models.Model):
-    """
-    Модель подписки пользователя на обновления курса.
-    """
-
+    """Модель подписки"""
     user = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
@@ -111,7 +94,7 @@ class Subscription(models.Model):
         verbose_name="Пользователь",
     )
     course = models.ForeignKey(
-        "materials.Course",
+        Course,
         on_delete=models.CASCADE,
         related_name="subscribers",
         verbose_name="Курс",
@@ -121,7 +104,7 @@ class Subscription(models.Model):
     class Meta:
         verbose_name = "Подписка"
         verbose_name_plural = "Подписки"
-        unique_together = ["user", "course"]  # Запрещаем дублирование подписок
+        unique_together = ["user", "course"]
         ordering = ["-created_at"]
 
     def __str__(self):

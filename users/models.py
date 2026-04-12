@@ -1,4 +1,3 @@
-# users/models.py
 from django.contrib.auth.models import AbstractUser
 from django.db import models
 
@@ -57,15 +56,10 @@ class User(AbstractUser):
 
 
 class Payment(models.Model):
-    """
-    Модель платежа пользователя за курс или урок.
-    """
-
     class PaymentMethod(models.TextChoices):
-        """Способы оплаты"""
-
         CASH = "cash", "Наличные"
         TRANSFER = "transfer", "Перевод на счет"
+        STRIPE = "stripe", "Stripe"
 
     user = models.ForeignKey(
         User,
@@ -73,9 +67,7 @@ class Payment(models.Model):
         related_name="payments",
         verbose_name="Пользователь",
     )
-
     payment_date = models.DateTimeField(auto_now_add=True, verbose_name="Дата оплаты")
-
     course = models.ForeignKey(
         "materials.Course",
         on_delete=models.CASCADE,
@@ -84,26 +76,31 @@ class Payment(models.Model):
         related_name="payments",
         verbose_name="Оплаченный курс",
     )
-
     lesson = models.ForeignKey(
         "materials.Lesson",
-        on_delete=models.CASCADE,
+       on_delete=models.CASCADE,
         null=True,
         blank=True,
-        related_name="payments",
+       related_name="payments",
         verbose_name="Оплаченный урок",
     )
-
     amount = models.DecimalField(
         max_digits=10, decimal_places=2, verbose_name="Сумма оплаты"
     )
-
     payment_method = models.CharField(
         max_length=20,
         choices=PaymentMethod.choices,
         default=PaymentMethod.TRANSFER,
         verbose_name="Способ оплаты",
     )
+
+    stripe_payment_intent_id = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Stripe Payment Intent ID"
+    )
+    stripe_checkout_session_id = models.CharField(
+        max_length=255, blank=True, null=True, verbose_name="Stripe Checkout Session ID"
+    )
+    is_successful = models.BooleanField(default=False, verbose_name="Платеж успешен")
 
     class Meta:
         verbose_name = "Платеж"
