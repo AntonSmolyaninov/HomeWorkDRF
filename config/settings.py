@@ -3,6 +3,7 @@ from datetime import timedelta
 from pathlib import Path
 
 import stripe
+from celery.schedules import crontab
 from dotenv import load_dotenv
 
 load_dotenv()
@@ -147,3 +148,47 @@ STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
 STRIPE_PUBLISHABLE_KEY = os.getenv("STRIPE_PUBLISHABLE_KEY")
 
 stripe.api_key = STRIPE_SECRET_KEY
+
+CELERY_BROKER_URL = "redis://127.0.0.1:6379/0"
+CELERY_RESULT_BACKEND = "redis://127.0.0.1:6379/0"
+# Часовой пояс для работы Celery
+CELERY_TIMEZONE = "Asia/Magadan"
+
+# Флаг отслеживания выполнения задач
+CELERY_TASK_TRACK_STARTED = True
+
+# Максимальное время на выполнение задачи
+CELERY_TASK_TIME_LIMIT = 30 * 60
+
+CELERY_BEAT_SCHEDULE = {
+    # Задача на блокировку неактивных пользователей (ежедневно в 00:00)
+    'block-inactive-users-daily': {
+        'task': 'users.tasks.block_inactive_users',
+        'schedule': crontab(hour=0, minute=0),  # Каждый день в полночь
+        'options': {
+            'expires': 3600,  # Задача актуальна в течение часа
+        }
+    },
+
+    # Проверка активности каждые 6 часов
+    'check-user-activity-6h': {
+        'task': 'users.tasks.check_user_activity',
+        'schedule': timedelta(hours=6),
+        'options': {
+            'expires': 1800,
+        }
+    },
+}
+
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = os.getenv('EMAIL_HOST_USER')

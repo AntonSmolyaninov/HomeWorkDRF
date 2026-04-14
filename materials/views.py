@@ -24,6 +24,7 @@ from materials.serializers import (
 )
 from services.stripe_service import create_checkout_session
 from users.permissions import IsModer, IsOwner
+from materials.tasks import check_course_update_and_notify  # Добавьте импорт
 
 
 class CourseViewSet(ModelViewSet):
@@ -33,7 +34,7 @@ class CourseViewSet(ModelViewSet):
     """
 
     queryset = Course.objects.all()
-    serializer_class = CourseSerializer  # Используем CourseSerializer
+    serializer_class = CourseSerializer
     permission_classes = [IsAuthenticatedOrReadOnly]
     pagination_class = CoursePagination
 
@@ -41,7 +42,23 @@ class CourseViewSet(ModelViewSet):
         serializer.save(owner=self.request.user)
 
     def perform_update(self, serializer):
-        serializer.save(owner=self.request.user)
+        # Получаем старые данные для сравнения
+        old_course = self.get_object()
+
+        # Сохраняем обновления
+        updated_course = serializer.save(owner=self.request.user)
+
+        # Проверяем, были ли изменения в важных полях
+        important_fields = ['title', 'description', 'price']
+        updated_fields = []
+
+        for field in important_fields:
+            if getattr(old_course, field) != getattr(updated_course, field):
+                updated_fields.append(field)
+
+        # Если были изменения, отправляем уведомление
+        if updated_fields:
+            check_course_update_and_notify.delay(updated_course.id, updated_fields)
 
     def get_permissions(self):
         if self.action == "create":
@@ -89,7 +106,23 @@ class LessonUpdateAPIView(UpdateAPIView):
     permission_classes = [IsAuthenticated, IsModer | IsOwner]
 
     def perform_update(self, serializer):
-        serializer.save(owner=self.request.user)
+        # Получаем старые данные для сравнения
+        old_lesson = self.get_object()
+
+        # Сохраняем обновления
+        updated_lesson = serializer.save(owner=self.request.user)
+
+        # Проверяем, были ли изменения в важных полях
+        important_fields = ['title', 'description', 'video_url']
+        updated_fields = []
+
+        for field in important_fields:
+            if getattr(old_lesson, field) != getattr(updated_lesson, field):
+                updated_fields.append(field)
+
+        # Если были изменения, отправляем уведомление для курса
+        if updated_fields:
+            check_course_update_and_notify.delay(updated_lesson.course.id, updated_fields)
 
 
 class LessonDestroyAPIView(DestroyAPIView):
