@@ -40,6 +40,12 @@ class Course(models.Model):
         verbose_name="Stripe Product ID",
         help_text="ID продукта в Stripe",
     )
+    last_notification_sent = models.DateTimeField(
+        null=True,
+        blank=True,
+        verbose_name="Последнее уведомление"
+    )
+
 
     class Meta:
         verbose_name = "Курс"
