@@ -30,10 +30,12 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "rest_framework",
     "rest_framework_simplejwt",
-    "materials",
-    "users",
+    'django_celery_beat',
+    'corsheaders',
     "drf_yasg",
     "django_filters",
+    "materials",
+    "users",
 ]
 
 MIDDLEWARE = [
