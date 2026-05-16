@@ -14,11 +14,8 @@ jobs:
     env:
       SECRET_KEY: "django-insecure-jsf@b*a^@@lksp^a)f#rt&%o1r)@p88pn&k$w=xqrmn@tm6_7-"
       DEBUG: True
-      NAME: django_drv
-      USER: postgres
-      PASSWORD: 1234567890
-      HOST: db
-      PORT: 5432
+      DB_ENGINE: "django.db.backends.sqlite3"
+      DB_NAME: "db.sqlite3"
 
     steps:
       - uses: actions/checkout@v4
