@@ -1,13 +1,10 @@
 from django.db import models
 
-from materials.validators import validate_forbidden_domains
-
 
 class Course(models.Model):
     """Модель курса"""
-    title = models.CharField(
-        max_length=100, verbose_name="Название", help_text="Укажите название курса"
-    )
+
+    title = models.CharField(max_length=100, verbose_name="Название", help_text="Укажите название курса")
     preview = models.ImageField(
         upload_to="materials/course",
         blank=True,
@@ -15,9 +12,7 @@ class Course(models.Model):
         verbose_name="Превью",
         help_text="Загрузите превью",
     )
-    description = models.TextField(
-        blank=True, null=True, verbose_name="Описание", help_text="Введите описание"
-    )
+    description = models.TextField(blank=True, null=True, verbose_name="Описание", help_text="Введите описание")
     owner = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
@@ -40,16 +35,12 @@ class Course(models.Model):
         verbose_name="Stripe Product ID",
         help_text="ID продукта в Stripe",
     )
-    last_notification_sent = models.DateTimeField(
-        null=True,
-        blank=True,
-        verbose_name="Последнее уведомление"
-    )
-
+    last_notification_sent = models.DateTimeField(null=True, blank=True, verbose_name="Последнее уведомление")
 
     class Meta:
         verbose_name = "Курс"
         verbose_name_plural = "Курсы"
+        ordering = ['id']  # Добавлено для устранения предупреждений пагинации
 
     def __str__(self):
         return self.title
@@ -57,9 +48,8 @@ class Course(models.Model):
 
 class Lesson(models.Model):
     """Модель урока"""
-    title = models.CharField(
-        max_length=100, verbose_name="Название", help_text="Укажите название урока"
-    )
+
+    title = models.CharField(max_length=100, verbose_name="Название", help_text="Укажите название урока")
     preview = models.ImageField(
         upload_to="lesson/course",
         blank=True,
@@ -67,13 +57,9 @@ class Lesson(models.Model):
         verbose_name="Превью",
         help_text="Загрузите превью",
     )
-    description = models.TextField(
-        blank=True, null=True, verbose_name="Описание", help_text="Введите описание"
-    )
+    description = models.TextField(blank=True, null=True, verbose_name="Описание", help_text="Введите описание")
     video_url = models.URLField(blank=True, null=True, verbose_name="Ссылка на видео")
-    course = models.ForeignKey(
-        Course, on_delete=models.CASCADE, related_name="lessons", verbose_name="Курс"
-    )
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name="lessons", verbose_name="Курс")
     owner = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
@@ -86,6 +72,7 @@ class Lesson(models.Model):
     class Meta:
         verbose_name = "Урок"
         verbose_name_plural = "Уроки"
+        ordering = ['id']  # Добавлено для устранения предупреждений пагинации
 
     def __str__(self):
         return f"{self.title} (Курс: {self.course.title})"
@@ -93,6 +80,7 @@ class Lesson(models.Model):
 
 class Subscription(models.Model):
     """Модель подписки"""
+
     user = models.ForeignKey(
         "users.User",
         on_delete=models.CASCADE,
