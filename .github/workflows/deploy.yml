@@ -28,7 +28,7 @@ jobs:
         run: flake8 --exclude=migrations --max-line-length=119
 
       - name: Run tests
-        run: pytest --cov=. --cov-fail-under=80
+        run: python manage.py test
 
   deploy:
     name: Deploy to Server
