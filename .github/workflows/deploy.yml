@@ -2,9 +2,9 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [main, master]
+    branches: [main, master, homework_35.2]
   pull_request:
-    branches: [main, master]
+    branches: [main, master, homework_35.2]
 
 jobs:
   test:
