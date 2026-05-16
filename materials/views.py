@@ -1,7 +1,4 @@
-import stripe
-from django.http import JsonResponse
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import status, settings
+from rest_framework import status
 from rest_framework.generics import (
     CreateAPIView,
     DestroyAPIView,
@@ -17,14 +14,10 @@ from rest_framework.viewsets import ModelViewSet
 
 from materials.models import Course, Lesson, Subscription
 from materials.paginators import CoursePagination, LessonPagination
-from materials.serializers import (
-    CourseSerializer,
-    LessonSerializer,
-    SubscriptionSerializer,
-)
+from materials.serializers import CourseSerializer, LessonSerializer, SubscriptionSerializer
+from materials.tasks import check_course_update_and_notify  # Добавьте импорт
 from services.stripe_service import create_checkout_session
 from users.permissions import IsModer, IsOwner
-from materials.tasks import check_course_update_and_notify  # Добавьте импорт
 
 
 class CourseViewSet(ModelViewSet):
@@ -49,7 +42,7 @@ class CourseViewSet(ModelViewSet):
         updated_course = serializer.save(owner=self.request.user)
 
         # Проверяем, были ли изменения в важных полях
-        important_fields = ['title', 'description', 'price']
+        important_fields = ["title", "description", "price"]
         updated_fields = []
 
         for field in important_fields:
@@ -113,7 +106,7 @@ class LessonUpdateAPIView(UpdateAPIView):
         updated_lesson = serializer.save(owner=self.request.user)
 
         # Проверяем, были ли изменения в важных полях
-        important_fields = ['title', 'description', 'video_url']
+        important_fields = ["title", "description", "video_url"]
         updated_fields = []
 
         for field in important_fields:
@@ -193,9 +186,7 @@ class UserSubscriptionsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        subscriptions = Subscription.objects.filter(user=request.user).select_related(
-            "course"
-        )
+        subscriptions = Subscription.objects.filter(user=request.user).select_related("course")
         courses = [sub.course for sub in subscriptions]
         serializer = CourseSerializer(courses, many=True, context={"request": request})
         return Response(serializer.data)

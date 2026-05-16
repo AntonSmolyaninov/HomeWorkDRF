@@ -35,9 +35,7 @@ urlpatterns = [
     path("materials/", include("materials.urls", namespace="materials")),
     # API для пользователей и платежей
     path("users/", include("users.urls", namespace="users")),
-    path(
-        "swagger<format>/", schema_view.without_ui(cache_timeout=0), name="schema-json"
-    ),
+    path("swagger<format>/", schema_view.without_ui(cache_timeout=0), name="schema-json"),
     path(
         "swagger/",
         schema_view.with_ui("swagger", cache_timeout=0),

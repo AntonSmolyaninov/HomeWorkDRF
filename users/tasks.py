@@ -1,9 +1,10 @@
-from celery import shared_task
-from django.utils import timezone
 from datetime import timedelta
+
+from celery import shared_task
+from django.conf import settings
 from django.contrib.auth import get_user_model
 from django.core.mail import send_mail
-from django.conf import settings
+from django.utils import timezone
 
 User = get_user_model()
 
@@ -18,10 +19,7 @@ def block_inactive_users():
     month_ago = timezone.now() - timedelta(days=30)
 
     # Находим активных пользователей, которые не заходили более месяца
-    inactive_users = User.objects.filter(
-        is_active=True,
-        last_login__lt=month_ago
-    ).exclude(
+    inactive_users = User.objects.filter(is_active=True, last_login__lt=month_ago).exclude(
         is_superuser=True  # Не блокируем суперпользователей
     )
 
@@ -32,7 +30,7 @@ def block_inactive_users():
 
         # Блокируем пользователя
         user.is_active = False
-        user.save(update_fields=['is_active'])
+        user.save(update_fields=["is_active"])
         blocked_count += 1
 
     return f"Заблокировано {blocked_count} неактивных пользователей"
@@ -80,7 +78,7 @@ def check_user_activity():
     users_to_warn = User.objects.filter(
         is_active=True,
         last_login__lt=warning_date,
-        last_login__gte=warning_date - timedelta(days=1)
+        last_login__gte=warning_date - timedelta(days=1),
     ).exclude(is_superuser=True)
 
     warned_count = 0

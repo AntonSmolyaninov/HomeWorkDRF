@@ -1,9 +1,10 @@
 # materials/tasks.py
-from celery import shared_task
-from django.core.mail import send_mail
-from django.conf import settings
-from django.utils import timezone
 from datetime import timedelta
+
+from celery import shared_task
+from django.conf import settings
+from django.core.mail import send_mail
+from django.utils import timezone
 
 
 @shared_task
@@ -74,7 +75,6 @@ def send_lesson_update_notification(lesson_id, course_id, user_emails, lesson_ti
 def check_course_update_and_notify(course_id, updated_fields):
     """Проверяет, нужно ли отправлять уведомление об обновлении курса"""
     from materials.models import Course, Subscription
-    from users.models import User
 
     try:
         course = Course.objects.get(id=course_id)
@@ -83,10 +83,13 @@ def check_course_update_and_notify(course_id, updated_fields):
         if course.last_notification_sent:
             time_since_last = timezone.now() - course.last_notification_sent
             if time_since_last < timedelta(hours=4):
-                return f"Уведомление не отправлено. Последнее уведомление было {time_since_last.total_seconds() / 3600:.1f} часов назад"
+                return (
+                    f"Уведомление не отправлено."
+                    f"Последнее уведомление было {time_since_last.total_seconds() / 3600:.1f} часов назад"
+                )
 
         # Получаем подписчиков курса
-        subscribers = Subscription.objects.filter(course=course).select_related('user')
+        subscribers = Subscription.objects.filter(course=course).select_related("user")
         subscriber_emails = [sub.user.email for sub in subscribers if sub.user.email]
 
         if subscriber_emails:
@@ -95,7 +98,7 @@ def check_course_update_and_notify(course_id, updated_fields):
 
             # Обновляем время последнего уведомления
             course.last_notification_sent = timezone.now()
-            course.save(update_fields=['last_notification_sent'])
+            course.save(update_fields=["last_notification_sent"])
 
             return f"Уведомление отправлено {len(subscriber_emails)} подписчикам"
 

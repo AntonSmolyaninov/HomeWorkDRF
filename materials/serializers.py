@@ -10,9 +10,7 @@ class LessonSerializer(ModelSerializer):
     Сериализатор для модели Lesson с валидацией YouTube ссылок.
     """
 
-    video_url = serializers.URLField(
-        required=False, allow_blank=True, validators=[validate_forbidden_domains]
-    )
+    video_url = serializers.URLField(required=False, allow_blank=True, validators=[validate_forbidden_domains])
 
     class Meta:
         model = Lesson

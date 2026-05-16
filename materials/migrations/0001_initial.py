@@ -39,9 +39,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "created_at",
-                    models.DateTimeField(
-                        auto_now_add=True, verbose_name="Дата подписки"
-                    ),
+                    models.DateTimeField(auto_now_add=True, verbose_name="Дата подписки"),
                 ),
             ],
             options={
@@ -91,9 +89,7 @@ class Migration(migrations.Migration):
                 ),
                 (
                     "video_url",
-                    models.URLField(
-                        blank=True, null=True, verbose_name="Ссылка на видео"
-                    ),
+                    models.URLField(blank=True, null=True, verbose_name="Ссылка на видео"),
                 ),
                 (
                     "course",

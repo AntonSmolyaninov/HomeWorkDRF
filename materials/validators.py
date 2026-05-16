@@ -1,4 +1,3 @@
-from django.core.validators import validate_email
 from rest_framework.serializers import ValidationError
 
 
@@ -26,9 +25,7 @@ def validate_forbidden_domains(value):
     for domain in forbidden_domains:
         if domain in value_lower:
             raise ValidationError(
-                (
-                    f"Использование ссылок на {domain} запрещено. Разрешены только YouTube ссылки."
-                ),
+                (f"Использование ссылок на {domain} запрещено. Разрешены только YouTube ссылки."),
                 code="forbidden_domain",
             )
 

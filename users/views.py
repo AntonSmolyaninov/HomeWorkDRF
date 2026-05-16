@@ -1,11 +1,6 @@
 from django_filters.rest_framework import DjangoFilterBackend
-from rest_framework import filters, generics, permissions, status, viewsets
-from rest_framework.generics import (
-    CreateAPIView,
-    ListAPIView,
-    RetrieveUpdateDestroyAPIView,
-    UpdateAPIView,
-)
+from rest_framework import filters, permissions, status, viewsets
+from rest_framework.generics import CreateAPIView, ListAPIView, RetrieveUpdateDestroyAPIView
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.response import Response
 
@@ -37,9 +32,7 @@ class PaymentViewSet(viewsets.ModelViewSet):
         """
         if self.request.user.is_superuser:
             return Payment.objects.all().select_related("user", "course", "lesson")
-        return Payment.objects.filter(user=self.request.user).select_related(
-            "course", "lesson"
-        )
+        return Payment.objects.filter(user=self.request.user).select_related("course", "lesson")
 
 
 class UserPaymentViewSet(viewsets.ReadOnlyModelViewSet):

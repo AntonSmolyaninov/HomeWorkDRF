@@ -17,17 +17,11 @@ class Command(BaseCommand):
 
         # Проверяем наличие необходимых данных
         if not users.exists():
-            self.stdout.write(
-                self.style.ERROR("Нет пользователей! Создайте сначала пользователей.")
-            )
+            self.stdout.write(self.style.ERROR("Нет пользователей! Создайте сначала пользователей."))
             return
 
         if not courses.exists() and not lessons.exists():
-            self.stdout.write(
-                self.style.ERROR(
-                    "Нет курсов и уроков! Создайте сначала курсы или уроки."
-                )
-            )
+            self.stdout.write(self.style.ERROR("Нет курсов и уроков! Создайте сначала курсы или уроки."))
             return
 
         # Создаем платежи
@@ -43,9 +37,7 @@ class Command(BaseCommand):
                 payment_method="transfer",
             )
             created_count += 1
-            self.stdout.write(
-                f'Создан платеж: {users[0].email} - оплата курса "{courses[0].title}" - 5000 руб.'
-            )
+            self.stdout.write(f'Создан платеж: {users[0].email} - оплата курса "{courses[0].title}" - 5000 руб.')
 
         # Платеж 2: Пользователь 1 оплатил урок 1
         if users.count() >= 1 and lessons.count() >= 1:
@@ -57,9 +49,7 @@ class Command(BaseCommand):
                 payment_method="cash",
             )
             created_count += 1
-            self.stdout.write(
-                f'Создан платеж: {users[0].email} - оплата урока "{lessons[0].title}" - 1500 руб.'
-            )
+            self.stdout.write(f'Создан платеж: {users[0].email} - оплата урока "{lessons[0].title}" - 1500 руб.')
 
         # Платеж 3: Пользователь 2 оплатил курс 2
         if users.count() >= 2 and courses.count() >= 2:
@@ -71,9 +61,7 @@ class Command(BaseCommand):
                 payment_method="transfer",
             )
             created_count += 1
-            self.stdout.write(
-                f'Создан платеж: {users[1].email} - оплата курса "{courses[1].title}" - 7500 руб.'
-            )
+            self.stdout.write(f'Создан платеж: {users[1].email} - оплата курса "{courses[1].title}" - 7500 руб.')
 
         # Платеж 4: Пользователь 2 оплатил урок 2
         if users.count() >= 2 and lessons.count() >= 2:
@@ -85,9 +73,7 @@ class Command(BaseCommand):
                 payment_method="cash",
             )
             created_count += 1
-            self.stdout.write(
-                f'Создан платеж: {users[1].email} - оплата урока "{lessons[1].title}" - 2000 руб.'
-            )
+            self.stdout.write(f'Создан платеж: {users[1].email} - оплата урока "{lessons[1].title}" - 2000 руб.')
 
         # Платеж 5: Пользователь 3 оплатил курс 1
         if users.count() >= 3 and courses.count() >= 1:
@@ -99,14 +85,10 @@ class Command(BaseCommand):
                 payment_method="transfer",
             )
             created_count += 1
-            self.stdout.write(
-                f'Создан платеж: {users[2].email} - оплата курса "{courses[0].title}" - 5000 руб.'
-            )
+            self.stdout.write(f'Создан платеж: {users[2].email} - оплата курса "{courses[0].title}" - 5000 руб.')
 
         # Выводим результат
-        self.stdout.write(
-            self.style.SUCCESS(f"Успешно создано {created_count} платежей!")
-        )
+        self.stdout.write(self.style.SUCCESS(f"Успешно создано {created_count} платежей!"))
 
         # Показываем статистику
         if Payment.objects.exists():

@@ -12,9 +12,7 @@ class User(AbstractUser):
 
     username = None  # Отключаем поле username
 
-    email = models.EmailField(
-        unique=True, verbose_name="почта", help_text="Укажите почту"
-    )
+    email = models.EmailField(unique=True, verbose_name="почта", help_text="Укажите почту")
     """Email пользователя (используется для входа)"""
 
     phone = models.CharField(
@@ -78,15 +76,13 @@ class Payment(models.Model):
     )
     lesson = models.ForeignKey(
         "materials.Lesson",
-       on_delete=models.CASCADE,
+        on_delete=models.CASCADE,
         null=True,
         blank=True,
-       related_name="payments",
+        related_name="payments",
         verbose_name="Оплаченный урок",
     )
-    amount = models.DecimalField(
-        max_digits=10, decimal_places=2, verbose_name="Сумма оплаты"
-    )
+    amount = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Сумма оплаты")
     payment_method = models.CharField(
         max_length=20,
         choices=PaymentMethod.choices,

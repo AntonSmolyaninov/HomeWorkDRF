@@ -1,5 +1,6 @@
 import stripe
 from django.conf import settings
+
 from users.models import Payment  # Импортируем из users, не из materials
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -30,8 +31,8 @@ def create_checkout_session(course, user, request):
             }
         ],
         mode="payment",
-        success_url='http://127.0.0.1:8000/payment/success/',
-        cancel_url='http://127.0.0.1:8000/payment/cancel/',
+        success_url="http://127.0.0.1:8000/payment/success/",
+        cancel_url="http://127.0.0.1:8000/payment/cancel/",
         customer_email=user.email,
     )
 

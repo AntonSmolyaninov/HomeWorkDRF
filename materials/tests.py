@@ -11,16 +11,12 @@ class CourseAPITestCase(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create(email="admin@sky.pro", is_superuser=True)
-        self.course = Course.objects.create(
-            title="Курс тест 1",
-            owner=self.user,
-            price=1000.00  # Добавьте цену
-        )
+        self.course = Course.objects.create(title="Курс тест 1", owner=self.user, price=1000.00)  # Добавьте цену
         self.lesson = Lesson.objects.create(
             title="Урок",
             description="Тестовый урок",
             course=self.course,
-            owner=self.user
+            owner=self.user,
         )
         self.client.force_authenticate(user=self.user)
 
@@ -59,9 +55,9 @@ class CourseAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
-        self.assertEqual(data['count'], 1)
-        self.assertEqual(len(data['results']), 1)
-        self.assertEqual(data['results'][0]['title'], self.course.title)
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(len(data["results"]), 1)
+        self.assertEqual(data["results"][0]["title"], self.course.title)
 
 
 class LessonAPITestCase(APITestCase):
@@ -70,11 +66,7 @@ class LessonAPITestCase(APITestCase):
         moders_group, created = Group.objects.get_or_create(name="moders")
         self.user = User.objects.create(email="admin@sky.pro", is_superuser=True)
         self.user.groups.add(moders_group)
-        self.course = Course.objects.create(
-            title="Курс тест 1",
-            owner=self.user,
-            price=1000.00
-        )
+        self.course = Course.objects.create(title="Курс тест 1", owner=self.user, price=1000.00)
         self.lesson = Lesson.objects.create(
             title="Урок",
             description="Тестовый урок",
@@ -121,9 +113,9 @@ class LessonAPITestCase(APITestCase):
         data = response.json()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        self.assertEqual(data['count'], 1)
-        self.assertEqual(len(data['results']), 1)
-        self.assertEqual(data['results'][0]['title'], self.lesson.title)
+        self.assertEqual(data["count"], 1)
+        self.assertEqual(len(data["results"]), 1)
+        self.assertEqual(data["results"][0]["title"], self.lesson.title)
 
 
 class SubscriptionAPITestCase(APITestCase):
@@ -141,7 +133,7 @@ class SubscriptionAPITestCase(APITestCase):
             title="Тестовый курс",
             description="Описание курса",
             owner=self.user,
-            price=1000.00
+            price=1000.00,
         )
 
         self.client.force_authenticate(user=self.user)
@@ -156,9 +148,7 @@ class SubscriptionAPITestCase(APITestCase):
         self.assertEqual(response.data["message"], "подписка добавлена")
 
         # Проверяем, что подписка создалась
-        self.assertTrue(
-            Subscription.objects.filter(user=self.user, course=self.course).exists()
-        )
+        self.assertTrue(Subscription.objects.filter(user=self.user, course=self.course).exists())
 
     def test_unsubscribe_from_course(self):
         """Тест отписки от курса"""
@@ -174,6 +164,4 @@ class SubscriptionAPITestCase(APITestCase):
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["message"], "подписка удалена")
-        self.assertFalse(
-            Subscription.objects.filter(user=self.user, course=self.course).exists()
-        )
+        self.assertFalse(Subscription.objects.filter(user=self.user, course=self.course).exists())

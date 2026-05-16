@@ -15,9 +15,7 @@ class PaymentSerializer(serializers.ModelSerializer):
     user_full_name = serializers.SerializerMethodField()
     course_title = serializers.CharField(source="course.title", read_only=True)
     lesson_title = serializers.CharField(source="lesson.title", read_only=True)
-    payment_method_display = serializers.CharField(
-        source="get_payment_method_display", read_only=True
-    )
+    payment_method_display = serializers.CharField(source="get_payment_method_display", read_only=True)
 
     class Meta:
         model = Payment

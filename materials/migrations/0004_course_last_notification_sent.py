@@ -16,8 +16,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="course",
             name="last_notification_sent",
-            field=models.DateTimeField(
-                blank=True, null=True, verbose_name="Последнее уведомление"
-            ),
+            field=models.DateTimeField(blank=True, null=True, verbose_name="Последнее уведомление"),
         ),
     ]
