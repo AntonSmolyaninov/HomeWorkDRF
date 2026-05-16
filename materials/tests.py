@@ -1,3 +1,4 @@
+from unittest.mock import patch
 from django.contrib.auth.models import Group
 from django.urls import reverse
 from rest_framework import status
@@ -11,7 +12,7 @@ class CourseAPITestCase(APITestCase):
 
     def setUp(self):
         self.user = User.objects.create(email="admin@sky.pro", is_superuser=True)
-        self.course = Course.objects.create(title="Курс тест 1", owner=self.user, price=1000.00)  # Добавьте цену
+        self.course = Course.objects.create(title="Курс тест 1", owner=self.user, price=1000.00)
         self.lesson = Lesson.objects.create(
             title="Урок",
             description="Тестовый урок",
@@ -34,13 +35,15 @@ class CourseAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Course.objects.all().count(), 2)
 
-    def test_course_update(self):
+    @patch('materials.views.check_course_update_and_notify.delay')
+    def test_course_update(self, mock_celery):
         url = reverse("materials:course-detail", args=(self.course.pk,))
         data = {"title": "Курс тест2"}
         response = self.client.patch(url, data)
         data = response.json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data.get("title"), "Курс тест2")
+        mock_celery.assert_called_once()
 
     def test_course_delete(self):
         url = reverse("materials:course-detail", args=(self.course.pk,))
@@ -54,7 +57,6 @@ class CourseAPITestCase(APITestCase):
         data = response.json()
 
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-
         self.assertEqual(data["count"], 1)
         self.assertEqual(len(data["results"]), 1)
         self.assertEqual(data["results"][0]["title"], self.course.title)
@@ -93,13 +95,15 @@ class LessonAPITestCase(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(Lesson.objects.all().count(), 2)
 
-    def test_lesson_update(self):
+    @patch('materials.views.check_course_update_and_notify.delay')
+    def test_lesson_update(self, mock_celery):
         url = reverse("materials:lesson-update", args=(self.lesson.pk,))
         data = {"title": "Урок тест2"}
         response = self.client.patch(url, data)
         data = response.json()
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(data.get("title"), "Урок тест2")
+        mock_celery.assert_called_once()
 
     def test_lesson_delete(self):
         url = reverse("materials:lesson-delete", args=(self.lesson.pk,))
@@ -121,47 +125,34 @@ class LessonAPITestCase(APITestCase):
 class SubscriptionAPITestCase(APITestCase):
 
     def setUp(self):
-        # Создаем группу модераторов
         moderators_group, created = Group.objects.get_or_create(name="moderators")
-
-        # Создаем пользователя
         self.user = User.objects.create(email="user@sky.pro", is_superuser=False)
         self.user.groups.add(moderators_group)
-
-        # Создаем курс с ценой
         self.course = Course.objects.create(
             title="Тестовый курс",
             description="Описание курса",
             owner=self.user,
             price=1000.00,
         )
-
         self.client.force_authenticate(user=self.user)
 
     def test_subscribe_to_course(self):
-        """Тест подписки на курс"""
         url = reverse("materials:subscription")
         data = {"course_id": self.course.pk}
         response = self.client.post(url, data)
 
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(response.data["message"], "подписка добавлена")
-
-        # Проверяем, что подписка создалась
         self.assertTrue(Subscription.objects.filter(user=self.user, course=self.course).exists())
 
     def test_unsubscribe_from_course(self):
-        """Тест отписки от курса"""
         url = reverse("materials:subscription")
         data = {"course_id": self.course.pk}
 
-        # Подписываемся
         response = self.client.post(url, data)
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
 
-        # Отписываемся (повторный POST)
         response = self.client.post(url, data)
-
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data["message"], "подписка удалена")
         self.assertFalse(Subscription.objects.filter(user=self.user, course=self.course).exists())
